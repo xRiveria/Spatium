@@ -1,0 +1,15 @@
+## Visual Studio
+# User-Specific Files
+*.vs
+*.vscode
+*.sln
+*.vcxproj
+*.filters
+*.suo
+*.user
+bin/
+bin-int/
+
+## Binaries
+# Object Files, Executables, Libraries
+Binaries/
