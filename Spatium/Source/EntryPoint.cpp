@@ -1,4 +1,5 @@
 #include "BVH/BVH.hpp"
+#include "Core/Stopwatch.h"
 
 #include <GLM/gtc/matrix_transform.hpp>
 #include <iostream>
@@ -48,11 +49,22 @@ int main()
     BVHObject objectBVH;
 
     objectBVH.Clear();
-    objectBVH.BuildTopDown(objectPtrs.begin(), objectPtrs.end(), buildConfiguration);
+    {
+        Spatium::Stopwatch stopWatch("Top-Down Build Took");
+        objectBVH.BuildTopDown(objectPtrs.begin(), objectPtrs.end(), buildConfiguration);
+    }
+
     objectBVH.Clear();
-    objectBVH.BuildBottomUp(objectPtrs.begin(), objectPtrs.end(), buildConfiguration);
+    {
+        Spatium::Stopwatch stopWatch("Bottom-Up Build Took");
+        objectBVH.BuildBottomUp(objectPtrs.begin(), objectPtrs.end(), buildConfiguration);
+    }
+
     objectBVH.Clear();
-    objectBVH.Insert(objectPtrs.begin(), objectPtrs.end(), buildConfiguration);
+    {
+        Spatium::Stopwatch stopWatch("Dynamic Insertion Took");
+        objectBVH.Insert(objectPtrs.begin(), objectPtrs.end(), buildConfiguration);
+    }
 
     std::cout << "Hello World!\n";
 }
