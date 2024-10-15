@@ -20,4 +20,20 @@ namespace Spatium
 		glm::vec3 m_Minimum = { 0.0f, 0.0f, 0.0f };
 		glm::vec3 m_Maximum = { 0.0f, 0.0f, 0.0f };
 	};
+
+	struct Triangle
+	{
+	public:
+		Triangle(const glm::vec3& pointA, const glm::vec3& pointB, const glm::vec3& pointC);
+
+		glm::vec3& operator[](int axisIndex);
+		const glm::vec3& operator[](int axisIndex) const;
+
+		float GetCenter(uint32_t axisIndex) const;
+		glm::vec3 GetMinimumPoint() const;
+		glm::vec3 GetMaximumPoint() const;
+
+	public:
+		glm::vec3 m_Points[3] = { };
+	};
 }

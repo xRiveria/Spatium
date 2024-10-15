@@ -43,8 +43,8 @@ int main()
     }
 
     Spatium::BVHBuildConfiguration buildConfiguration;
-    buildConfiguration.m_MinimumObjects = 5;
-    buildConfiguration.m_MinimumVolume = 10;
+    buildConfiguration.m_MinimumObjects = 3;
+    buildConfiguration.m_MinimumVolume = 5;
   
     BVHObject objectBVH;
 
@@ -52,21 +52,22 @@ int main()
     {
         Spatium::Stopwatch stopWatch("Top-Down Build Took");
         objectBVH.BuildTopDown(objectPtrs.begin(), objectPtrs.end(), buildConfiguration);
+        std::cout << "Tree Depth: " << objectBVH.GetDepth() << "\n";
     }
 
     objectBVH.Clear();
     {
         Spatium::Stopwatch stopWatch("Bottom-Up Build Took");
         objectBVH.BuildBottomUp(objectPtrs.begin(), objectPtrs.end(), buildConfiguration);
+        std::cout << "Tree Depth: " << objectBVH.GetDepth() << "\n";
     }
 
     objectBVH.Clear();
     {
         Spatium::Stopwatch stopWatch("Dynamic Insertion Took");
         objectBVH.Insert(objectPtrs.begin(), objectPtrs.end(), buildConfiguration);
+        std::cout << "Tree Depth: " << objectBVH.GetDepth() << "\n";
     }
-
-    std::cout << "Hello World!\n";
 }
 
 void GenerateDummyObjects(std::vector<std::shared_ptr<Object>>& sceneObjects)
