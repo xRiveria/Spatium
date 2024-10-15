@@ -5,7 +5,8 @@ A collection of spacial partitioning techniques made for personal use in real-ti
 
 The BVH implementations can comfortably handle up to 16000 meshes in an unevenly dense 3D scene, while the K-D Tree itself struggles at around 870000 triangles as tested with the Stanford Dragon model. I suspect that performance can be (much) further improved with additional optimizations targeted at mid-build operations which I've taken some liberty around for experimentations (such as naive rotations and sorts).
 
-The Quadtree implementation work with points and is exceptionally simple, meant for usage in 2D scenes that require a simple broadphase culling approach.
+The Quadtree and Octree implementations are exceptionally simple yet effective. A search test of 10 million points yields speed improvements 1/18th the cost of a regular search. Optimizations were used
+where possible (bit packing, locational codes, etc.) to save on memory usage where possible.
 
 # Techniques - BVH
 
@@ -17,7 +18,7 @@ Facinatingly, with a two-pass approach for bottom-up building, real-time perform
 
 # Techniques - K-D Tree
 
-Using Surface Area Heuristics, we sample N uniform positions within the AABB at each axis and pick the one with the lowest cost as the split point. Heavy optimizations are used here to reduce the bandwidth of individual
+Using Surface Area Heuristics, we sample a set number of uniform positions within the AABB along each axis and pick the one with the lowest cost as the split point. Heavy optimizations are used here to reduce the memory usage of individual
 tree nodes to improve traversal performance.
 
 ## Compilation
