@@ -6,6 +6,9 @@ namespace Spatium
 	struct AABB
 	{
 	public:
+		AABB() = default;
+		AABB(const glm::vec3& minimum, const glm::vec3& maximum) : m_Minimum(minimum), m_Maximum(maximum) { }
+
 		void Expand(const AABB& other);
 		AABB Union(const AABB& other) const;
 

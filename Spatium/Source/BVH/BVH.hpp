@@ -4,7 +4,9 @@
 #include <cstdint>
 #include <vector>
 #include <limits>
+#include <functional>
 
+#include "Core/Core.h"
 #include "Core/Geometry.h"
 
 namespace Spatium
@@ -35,10 +37,10 @@ namespace Spatium
 			uint32_t GetObjectCount() const;
 
 			template <typename Function>
-			void TraverseLevelOrder(Function traversalFunction); // Applies the function to all nodes within this node's subtree.
+			void TraverseLevelOrder(Function traversalFunction) const; // Applies the function to all nodes within this node's subtree.
 
 			template <typename Function>
-			void TraverseLevelOrderObjects(Function traversalFunction); // Applies the function to all objects within this node's subtree.
+			void TraverseLevelOrderObjects(Function traversalFunction) const; // Applies the function to all objects within this node's subtree.
 
 			// Linked list of objects within this node.
 			T m_FirstObject;

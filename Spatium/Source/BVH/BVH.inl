@@ -25,7 +25,7 @@ namespace Spatium
         if (m_Root != nullptr)
         {
             // Recursively delete nodes starting from the root.
-            std::function<void(Node*)> DeleteNodes = [&](Node* node)
+            std::function<void(BVHNode*)> DeleteNodes = [&](BVHNode* node)
             {
                 if (node != nullptr)
                 {
@@ -36,10 +36,10 @@ namespace Spatium
                         T currentObject = node->m_FirstObject;
                         while (currentObject != nullptr)
                         {
-                            T nextObject = currentObject->bvhInfo.next;
-                            currentObject->bvhInfo.next = nullptr;
-                            currentObject->bvhInfo.prev = nullptr;
-                            currentObject->bvhInfo.node = nullptr;
+                            T nextObject = currentObject->m_BVHInfo.m_Next;
+                            currentObject->m_BVHInfo.m_Next = nullptr;
+                            currentObject->m_BVHInfo.m_Previous = nullptr;
+                            currentObject->m_BVHInfo.m_Node = nullptr;
                             currentObject = nextObject;
                         }
                     }
@@ -85,21 +85,21 @@ namespace Spatium
         node->m_AABB = CreateEncapsulatingBoundingVolume(targetObjects, beginIndex, endIndex);
 
         // Add objects to leaf if any of the following conditions are met.
-        if (currentDepth >= config.m_MaxDepth || (endIndex - beginIndex) <= buildConfiguration.m_MinimumObjects || node->m_AABB.GetVolume() <= buildConfiguration.m_MinimumVolume)
+        if (currentDepth >= buildConfiguration.m_MaxDepth || (endIndex - beginIndex) <= buildConfiguration.m_MinimumObjects || node->m_AABB.GetVolume() <= buildConfiguration.m_MinimumVolume)
         {
             for (size_t i = beginIndex; i < endIndex; i++)
             {
-                node->AddObject(objects[i]);
+                node->AddObject(targetObjects[i]);
             }
 
             return node;
         }
 
         // Otherwise, proceed to split. We will use the K-Splits Points approach here.
-        size_t bestSplitPoint = PartitionObjects(targetObjects, beginIndex, endIndex);
+        size_t bestSplitPoint = PartitionObjects(targetObjects, beginIndex, endIndex, buildConfiguration);
 
-        node->children[0] = BuildTopDownRecursive(targetObjects, beginIndex, bestSplitPoint, buildConfiguration, currentDepth + 1);
-        node->children[1] = BuildTopDownRecursive(targetObjects, bestSplitPoint, endIndex, buildConfiguration, currentDepth + 1);
+        node->m_Children[0] = BuildTopDownRecursive(targetObjects, beginIndex, bestSplitPoint, buildConfiguration, currentDepth + 1);
+        node->m_Children[1] = BuildTopDownRecursive(targetObjects, bestSplitPoint, endIndex, buildConfiguration, currentDepth + 1);
 
         return node;
     }
@@ -120,7 +120,7 @@ namespace Spatium
             // Sorts objects along each axis based on the center of their bounding volumes.
             std::sort(targetObjects.begin() + beginIndex, targetObjects.begin() + endIndex, [axis](const T& a, const T& b)
             {
-                return a->bv.Center()[axis] < b->bv.Center()[axis];
+                return a->m_AABB.GetCenter()[axis] < b->m_AABB.GetCenter()[axis];
             });
 
             std::vector<AABB> leftBounds(kSplitPoints);
@@ -170,7 +170,7 @@ namespace Spatium
     void BVH<T>::BuildBottomUp(Iterator itBegin, Iterator itEnd, const BVHBuildConfiguration& buildConfiguration)
     {
         // Ryan: Not using any configuration options here. This BottomUp build technique is optimized for speed and hence adheres strictly to it.
-        // UNUSED_PARAMETER(config);
+        SPATIUM_UNREFERENCED_PARAMETER(buildConfiguration);
 
         Clear();
 
@@ -330,7 +330,7 @@ namespace Spatium
         if (m_Root == nullptr)
         {
             m_Root = new BVHNode();
-            m_Root->AddObject(object);
+            m_Root->AddObject(targetObject);
             return;
         }
 
@@ -342,7 +342,7 @@ namespace Spatium
         {
             // Create node for the current object.
             BVHNode* newNode = new BVHNode();
-            newNode->AddObject(object);
+            newNode->AddObject(targetObject);
 
             // Obtain the old parent of the sibling node for reconnection later.
             BVHNode* oldParent = siblingNode->m_Parent;
@@ -404,10 +404,10 @@ namespace Spatium
         else
         {
             // Add object to found node as it does not exceed volume capacity.
-            siblingNode->AddObject(object);
+            siblingNode->AddObject(targetObject);
 
             // Head back up through the parent node and refit AABBs accordingly.
-            BVHNode* parentNode = siblingNode->parent;
+            BVHNode* parentNode = siblingNode->m_Parent;
             while (parentNode != nullptr)
             {
                 BVHNode* leftChild = parentNode->m_Children[0];
@@ -616,6 +616,152 @@ namespace Spatium
             aabb.Expand(targetObjects[i]->m_AABB);
         }
         return aabb;
+    }
+
+    /// ====================================================
+
+    template <typename T>
+    BVH<T>::BVHNode::BVHNode() : m_Parent(nullptr), m_FirstObject(nullptr), m_LastObject(nullptr), m_Children{ nullptr, nullptr }
+    {
+        m_AABB.m_Minimum = glm::vec3(std::numeric_limits<float>::max());
+        m_AABB.m_Maximum = glm::vec3(std::numeric_limits<float>::lowest());
+    }
+
+    template <typename T>
+    void BVH<T>::BVHNode::AddObject(T targetObject)
+    {
+        if (m_FirstObject == nullptr)
+        {
+            m_FirstObject = targetObject;
+            m_LastObject = targetObject;
+        }
+        else
+        {
+            m_LastObject->m_BVHInfo.m_Next = targetObject;
+            targetObject->m_BVHInfo.m_Previous = m_LastObject;
+            m_LastObject = targetObject;
+        }
+
+        targetObject->m_BVHInfo.m_Node = this;
+        m_AABB.Expand(targetObject->m_AABB);
+    }
+
+    template <typename T>
+    bool BVH<T>::BVHNode::IsLeaf() const
+    {
+        // Each node only has 2 children.
+        return m_Children[0] == nullptr && m_Children[1] == nullptr;
+    }
+
+    template <typename T>
+    int BVH<T>::BVHNode::GetSize() const
+    {
+        if (IsLeaf())
+        {
+            return 1;
+        }
+
+        int currentSize = 1; // Self
+
+        if (m_Children[0] != nullptr)
+        {
+            currentSize += m_Children[0]->GetSize();
+        }
+
+        if (m_Children[1] != nullptr)
+        {
+            currentSize += m_Children[1]->GetSize();
+        }
+
+        return currentSize;
+    }
+
+    // If there is only a single node in the tree, we should obtain a depth of 0.
+    template <typename T>
+    int BVH<T>::BVHNode::GetDepth() const
+    {
+        if (m_Children[0] == nullptr && m_Children[1] == nullptr)
+        {
+            return 0;
+        }
+
+        int leftDepth = m_Children[0] != nullptr ? m_Children[0]->GetDepth() : 0;
+        int rightDepth = m_Children[1] != nullptr ? m_Children[1]->GetDepth() : 0;
+
+        return 1 + std::max(leftDepth, rightDepth);
+    }
+
+    template <typename T>
+    unsigned BVH<T>::BVHNode::GetObjectCount() const
+    {
+        // Remember that objects are only stored at the leaves.
+        unsigned objectCount = 0;
+        T objectIterator = m_FirstObject;
+
+        while (objectIterator != nullptr)
+        {
+            objectCount++;
+            objectIterator = objectIterator->m_BVHInfo.m_Next;
+        }
+
+        return objectCount;
+    }
+
+    template <typename T>
+    template <typename Function>
+    void BVH<T>::BVHNode::TraverseLevelOrderObjects(Function traversalFunction) const
+    {
+        std::queue<const BVHNode*> nodeQueue;
+        nodeQueue.push(this);
+
+        while (!nodeQueue.empty())
+        {
+            const BVHNode* currentNode = nodeQueue.front();
+            nodeQueue.pop();
+            T currentObject = currentNode->m_FirstObject;
+
+            while (currentObject != nullptr)
+            {
+                traversalFunction(currentObject);
+                currentObject = currentObject->m_BVHInfo.m_Next;
+            }
+
+            if (currentNode->m_Children[0] != nullptr)
+            {
+                nodeQueue.push(currentNode->m_Children[0]);
+            }
+
+            if (currentNode->m_Children[1] != nullptr)
+            {
+                nodeQueue.push(currentNode->m_Children[1]);
+            }
+        }
+    }
+
+    template <typename T>
+    template <typename Function>
+    void BVH<T>::BVHNode::TraverseLevelOrder(Function traversalFunction) const
+    {
+        // We will perform BFS here.
+        std::queue<const BVHNode*> nodeQueue;
+        nodeQueue.push(this);
+
+        while (!nodeQueue.empty())
+        {
+            const BVHNode* currentNode = nodeQueue.front();
+            nodeQueue.pop();
+            func(currentNode);
+
+            if (currentNode->m_Children[0] != nullptr)
+            {
+                nodeQueue.push(currentNode->m_Children[0]);
+            }
+
+            if (currentNode->m_Children[1] != nullptr)
+            {
+                nodeQueue.push(currentNode->m_Children[1]);
+            }
+        }
     }
 }
 
