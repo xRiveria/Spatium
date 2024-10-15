@@ -62,7 +62,6 @@ namespace Spatium
 		template <typename Iterator>
 		void Insert(Iterator itBegin, Iterator itEnd, const BVHBuildConfiguration& buildConfiguration);
 
-		template <typename T>
 		void Insert(T targetObject, const BVHBuildConfiguration& buildConfiguration);
 
 		template <typename Function> 
@@ -76,8 +75,8 @@ namespace Spatium
 		bool IsEmpty() const;
 		int GetDepth() const;
 		int GetSize() const;
-		BVHNode* GetRoot() const;
-		uint32_t GetObjectCount() const;
+		const BVHNode* GetRoot() const;
+		uint32_t GetObjectCount() const { return m_ObjectCount; }
 
 	private:
 		BVHNode* BuildTopDownRecursive(std::vector<T>& targetObjects, size_t beginIndex, size_t endIndex, const BVHBuildConfiguration& buildConfiguration, uint32_t currentDepth);
@@ -88,6 +87,9 @@ namespace Spatium
 		BVHNode* BuildBottomUpIterative(std::vector<BVHNode*>& objectNodes);
 		BVHNode* CreateParentNode(BVHNode* leftNode, BVHNode* rightNode);
 		float ComputeBestPairCost(BVHNode* node, const std::vector<BVHNode*>& nodes);
+
+		BVHNode* FindBestSibling(T newObject);
+		void RotateRebalance(BVHNode* node);
 
 	private:
 		BVHNode* m_Root;
