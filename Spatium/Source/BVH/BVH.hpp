@@ -82,6 +82,7 @@ namespace Spatium
 	private:
 		BVHNode* BuildTopDownRecursive(std::vector<T>& targetObjects, size_t beginIndex, size_t endIndex, const BVHBuildConfiguration& buildConfiguration, uint32_t currentDepth);
 		AABB CreateEncapsulatingBoundingVolume(const std::vector<T>& targetObjects, size_t beginIndex, size_t endIndex);
+		size_t PartitionObjects(std::vector<T>& targetObjects, size_t beginIndex, size_t endIndex, const BVHBuildConfiguration& buildConfiguration);
 
 	private:
 		BVHNode* m_Root;

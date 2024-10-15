@@ -1,3 +1,4 @@
+#include "BVH/BVH.hpp"
 #include <iostream>
 
 int main()

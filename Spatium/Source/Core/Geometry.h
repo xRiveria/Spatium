@@ -10,6 +10,7 @@ namespace Spatium
 
 		float GetVolume() const;
 		float GetSurfaceArea() const;
+		glm::vec3 GetCenter() const;
 
 	public:
 		glm::vec3 m_Minimum = { 0.0f, 0.0f, 0.0f };
