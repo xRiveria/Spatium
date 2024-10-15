@@ -7,6 +7,7 @@ namespace Spatium
 	{
 	public:
 		void Expand(const AABB& other);
+		AABB Union(const AABB& other) const;
 
 		float GetVolume() const;
 		float GetSurfaceArea() const;

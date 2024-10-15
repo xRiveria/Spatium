@@ -84,6 +84,11 @@ namespace Spatium
 		AABB CreateEncapsulatingBoundingVolume(const std::vector<T>& targetObjects, size_t beginIndex, size_t endIndex);
 		size_t PartitionObjects(std::vector<T>& targetObjects, size_t beginIndex, size_t endIndex, const BVHBuildConfiguration& buildConfiguration);
 
+		BVHNode* FindBestMergeCandidate(BVHNode* node, const std::vector<BVHNode*>& nodes);
+		BVHNode* BuildBottomUpIterative(std::vector<BVHNode*>& objectNodes);
+		BVHNode* CreateParentNode(BVHNode* leftNode, BVHNode* rightNode);
+		float ComputeBestPairCost(BVHNode* node, const std::vector<BVHNode*>& nodes);
+
 	private:
 		BVHNode* m_Root;
 		uint32_t m_ObjectCount;
