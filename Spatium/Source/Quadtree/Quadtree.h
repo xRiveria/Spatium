@@ -15,6 +15,8 @@ namespace Spatium
 
 	public:
 		Quadtree(const glm::vec2& treePosition, const glm::vec2& treeSize, int currentLevel, int maxLevel);
+		~Quadtree();
+
 		void AddObject(QuadtreeObject* targetObject);
 		void Clear();
 

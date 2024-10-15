@@ -19,6 +19,14 @@ namespace Spatium
 		m_SouthEast = new Quadtree({ m_Position.x + halfWidth, m_Position.y + halfHeight }, { halfWidth, halfHeight }, m_Level + 1, maxLevel);
 	}
 
+	Quadtree::~Quadtree()
+	{
+		delete m_NorthWest;
+		delete m_NorthEast;
+		delete m_SouthWest;
+		delete m_SouthEast;
+	}
+
 	void Quadtree::Clear()
 	{
 		if (m_Level < m_MaxLevel)
