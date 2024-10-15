@@ -1,5 +1,5 @@
 # Spatium
-<img src="https://github.com/xRiveria/Spatium/blob/master/Documentation/StanfordBunny.PNG" width="49%"></img> <img src="https://github.com/xRiveria/Spatium/blob/master/Documentation/StanfordDragon.PNG" width="49%"></img>
+<img src="https://github.com/xRiveria/Spatium/blob/master/Documentation/StanfordDragon.png" width="40%"></img> <img src="https://github.com/xRiveria/Spatium/blob/master/Documentation/StanfordBunny.png" width="40%"></img>
 
 A collection of space partioning techniques made for personal use in real-time applications as well as coursework. 
 
@@ -19,4 +19,4 @@ To build the project, simply navigate to the `Scripts` folder and run `SpatiumBu
 - [Five Balltree Construction Algorithms by Omohundro](https://steveomohundro.com/wp-content/uploads/2009/03/omohundro89_five_balltree_construction_algorithms.pdf)
 - [Real Time Collision Detection by Christer Ericson](https://realtimecollisiondetection.net)
 - [Automatic Creation of Object Hierarchies for Ray Tracing](https://typeset.io/pdf/automatic-creation-of-object-hierarchies-for-ray-tracing-9eb2zp9js9.pdf)
-- [Stochastic Subsets for Bounding Volume Hierarchy (BVH) Construction] (https://www.intel.cn/content/www/cn/zh/developer/articles/technical/bvh-construction.html)l)
+- [Stochastic Subsets for Bounding Volume Hierarchy (BVH) Construction](https://www.intel.cn/content/www/cn/zh/developer/articles/technical/bvh-construction.html)
