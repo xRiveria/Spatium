@@ -1,5 +1,8 @@
-#pragma once
+#ifndef BVH_HPP
+#define BVH_HPP
+
 #include <cstdint>
+#include <vector>
 #include <limits>
 
 #include "Core/Geometry.h"
@@ -50,14 +53,23 @@ namespace Spatium
 		BVH();
 		~BVH();
 
-		template <typename T>
-		void BuildTopDown(T itBegin, T itEnd, const BVHBuildConfiguration& buildConfiguration);
+		template <typename Iterator>
+		void BuildTopDown(Iterator itBegin, Iterator itEnd, const BVHBuildConfiguration& buildConfiguration);
 
-		template <typename T>
-		void BuildBottomUp(T itBegin, T itEnd, const BVHBuildConfiguration& buildConfiguration);
+		template <typename Iterator>
+		void BuildBottomUp(Iterator itBegin, Iterator itEnd, const BVHBuildConfiguration& buildConfiguration);
+
+		template <typename Iterator>
+		void Insert(Iterator itBegin, Iterator itEnd, const BVHBuildConfiguration& buildConfiguration);
 
 		template <typename T>
 		void Insert(T targetObject, const BVHBuildConfiguration& buildConfiguration);
+
+		template <typename Function> 
+		void TraverseLevelOrder(Function traversalFunction) const;
+
+		template <typename Function> 
+		void TraverseLevelOrderObjects(Function func) const;
 
 		void Clear();
 
@@ -68,7 +80,15 @@ namespace Spatium
 		uint32_t GetObjectCount() const;
 
 	private:
+		BVHNode* BuildTopDownRecursive(std::vector<T>& targetObjects, size_t beginIndex, size_t endIndex, const BVHBuildConfiguration& buildConfiguration, uint32_t currentDepth);
+		AABB CreateEncapsulatingBoundingVolume(const std::vector<T>& targetObjects, size_t beginIndex, size_t endIndex);
+
+	private:
 		BVHNode* m_Root;
 		uint32_t m_ObjectCount;
 	};
 }
+
+#include "BVH.inl"
+
+#endif

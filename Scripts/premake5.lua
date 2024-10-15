@@ -22,4 +22,7 @@ workspace "Spatium"
         "NOMINMAX"
     }
 
+IncludeDirectories = {}
+IncludeDirectories["GLM"] = "%{wks.location}Dependencies/GLM/Include"
+
 include "../Spatium"

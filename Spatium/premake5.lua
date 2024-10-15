@@ -20,6 +20,7 @@ project "Spatium"
     includedirs
     {
         "Source",
+        "%{IncludeDirectories.GLM}",
     }
 
     filter "configurations:Debug"
